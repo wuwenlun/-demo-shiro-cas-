@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="cas"
+  id="myeclipse.1475126385608"
+  context-root="/cas"
+  j2ee-spec="1.7"
+  archive="cas.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+

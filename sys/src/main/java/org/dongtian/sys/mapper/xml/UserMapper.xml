@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.dongtian.sys.mapper.UserMapper" >
+
+<resultMap type="org.dongtian.sys.entity.User" id="userMap">
+	<id column="user_id" property="userId"/>
+	<result column="user_name" property="userName"/>
+	<result column="password" property="password"/>
+	<result column="state" property="state"/>
+	<result column="age" property="age"/>
+	<result column="sex" property="sex"/>
+	<result column="address" property="address"/>
+	<result column="mobile" property="mobile"/>
+	<result column="email" property="email"/>
+	<result column="nick_name" property="nickName"/>
+	<result column="create_time" property="createTime"/>
+	<result column="update_time" property="updateTime"/>
+	<result column="reg_time" property="regTime"/>
+</resultMap>
+
+<!-- 用户登录 -->
+<select id="login" resultMap="userMap">
+	SELECT * FROM s_user WHERE user_name = #{userName}
+</select>
+
+<select id="findUserList" resultMap="userMap">
+	
+	SELECT * FROM s_user 
+	
+	 <where>
+	  <if test="userName !=null and userName !=''">
+	  		AND user_name LIKE CONCAT('%',#{userName},'%')
+	  </if>
+	  <if test="nickName !=null and nickName !=''">
+	  		AND nick_name  LIKE CONCAT('%',#{nickName},'%')
+	  </if>
+	   <if test="email !=null and email !=''">
+	  		AND email  LIKE CONCAT('%',#{email},'%')
+	  </if>
+	  
+	    <if test="mobile !=null and mobile !=''">
+	  		AND mobile  LIKE CONCAT('%',#{mobile},'%')
+	  </if>
+	  
+	   <if test="startTime !=null">
+	  		AND create_time &gt;=#{startTime}
+	  </if>
+	    <if test="endTime !=null">
+	  		AND create_time &lt;=#{endTime}
+	  </if>
+	  </where>
+	order by update_time desc
+</select>
+<select id="findUserCount" resultType="java.lang.Integer">
+	
+	SELECT count(*) FROM s_user 
+	
+	  <where>
+	  <if test="userName !=null and userName !=''">
+	  		AND user_name LIKE CONCAT('%',#{userName},'%')
+	  </if>
+	  <if test="nickName !=null and nickName !=''">
+	  		AND nick_name  LIKE CONCAT('%',#{nickName},'%')
+	  </if>
+	   <if test="email !=null and email !=''">
+	  		AND email  LIKE CONCAT('%',#{email},'%')
+	  </if>
+	  
+	    <if test="mobile !=null and mobile !=''">
+	  		AND mobile  LIKE CONCAT('%',#{mobile},'%')
+	  </if>
+	  
+	   <if test="startTime !=null">
+	  		AND create_time &gt;=#{startTime}
+	  </if>
+	    <if test="endTime !=null">
+	  		AND create_time &lt;=#{endTime}
+	  </if>
+	  </where>
+</select>
+
+<!-- 检查昵称是否存在 -->
+<select id="checkNickName" resultMap="userMap">
+	SELECT * FROM S_USER WHERE nick_name = #{nickName}
+</select>
+
+<!-- 检查用户名是否存在 -->
+<select id="checkUserName" resultMap="userMap">
+	SELECT * FROM S_USER WHERE user_name = #{userName}
+</select>
+
+<!-- 检查邮箱是否存在 -->
+<select id="checkEmail" resultMap="userMap">
+	SELECT * FROM S_USER WHERE email = #{email}
+</select>
+
+<!-- 检查手机号码是否存在 -->
+<select id="checkMobile" resultMap="userMap">
+	SELECT * FROM S_USER WHERE mobile = #{mobile}
+</select>
+<!--  插入用户信息 -->
+<insert id="addUser">
+  insert into s_user(
+	  	user_name,
+		PASSWORD,
+		state,
+		age,
+		sex,
+		address,
+		mobile,
+		email,
+		nick_name,
+		create_time,
+		update_time,
+		reg_time
+  )VALUES(
+	  #{userName},
+	  #{password},
+	  #{state},
+	  #{age},
+	  #{sex},
+	  #{address},
+	  #{mobile},
+	  #{email},
+	  #{nickName},
+	  now(),
+	  now(),
+	  now()
+  )
+</insert>
+
+<!-- 根据主键获取用户信息  -->
+<select id="findUserByUserId" resultMap="userMap">
+
+	select * from s_user where user_id = #{userId}
+	
+</select>
+<!-- 更新用户 -->
+
+<update id="updateUser">
+
+UPDATE s_user
+
+<set>
+	<if test="userName !=null and userName !=''">
+		 user_name = #{userName},
+	</if>
+	<if test="nickName !=null and nickName !=''">
+		 nick_name = #{nickName},
+	</if>
+	<if test="password !=null and password !=''">
+		 password = #{password},
+	</if>
+	<if test="state !=null">
+		 state = #{state},
+	</if>
+	<if test="age!= 0">
+		 age = #{age},
+	</if>
+	<if test="sex !=0">
+		 sex = #{sex},
+	</if>
+	<if test="address !=null and address !=''">
+		 address = #{address},
+	</if>
+	<if test="email !=null and email !=''">
+		 email = #{email},
+	</if>
+		<if test="mobile !=null and mobile !=''">
+		 mobile = #{mobile},
+	</if>
+	update_time = now()
+</set>
+
+<where>
+  user_id = #{userId}
+</where>
+</update>
+
+<delete id="deleteUserByUserId">
+
+	DELETE FROM S_USER  WHERE USER_ID = #{userId}
+</delete>
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.dongtian.sys.mapper.RoleMapper" >
+
+<resultMap type="org.dongtian.sys.entity.Role" id="roleMap">
+	<id property="roleId" column="role_id" />
+	<result property="roleName" column="role_name"/>
+	<result property="state" column="state"/>
+	<result property="createTime" column="create_time"/>
+	<result property="updateTime" column="update_time"/>
+	<result property="description" column="description"/>
+</resultMap>
+
+<select id="findRoleListByUserId" resultMap="roleMap">
+	SELECT 
+	*
+	 FROM 
+	 s_role r
+	  INNER JOIN 
+	  s_user_role ur 
+	  ON 
+	  r.role_id = ur.role_id 
+	WHERE ur.user_id = #{userId} 
+	<if test="roleState != null">
+		AND r.state = #{roleState} 
+	
+	</if>
+</select>
+
+<select id="findRoleList" resultMap="roleMap">
+	SELECT * FROM S_ROLE 
+	<where>
+		<if test="roleName !=null and roleName !=''">
+			AND role_name like CONCAT('%',#{roleName},'%')
+		</if>
+		<if test="startTime !=null">
+			AND create_time &gt;=#{startTime}
+		</if>
+		<if test="endTime !=null">
+			AND create_time &lt;=#{endTime}
+		</if>
+	</where>
+	order by update_time desc
+</select>
+
+<select id="findRoleCount" resultType="int">
+	SELECT count(*) FROM S_ROLE 
+	<where>
+		<if test="roleName !=null and roleName !=''">
+			AND role_name like CONCAT('%',#{roleName},'%')
+		</if>
+		<if test="startTime !=null">
+			AND create_time &gt;=#{startTime}
+		</if>
+		<if test="endTime !=null">
+			AND create_time &lt;=#{endTime}
+		</if>
+	</where>
+</select>
+
+<!-- 插入角色 -->
+<insert id="addRole" parameterType="org.dongtian.sys.entity.Role">
+	INSERT INTO 
+	s_role(
+	role_name,
+	state,
+	create_time,
+	update_time,
+	description
+	) VALUES (
+		#{roleName},
+		#{state},
+		now(),
+		now(),
+		#{description}
+	)
+</insert>
+
+<!-- 根据角色id获取角色信息 -->
+<select id="findRoleByRoleId" resultMap="roleMap">
+	select * from S_ROLE where role_id = #{roleId}
+</select>
+
+<!-- 根据角色id 更新角色 -->
+<update id="updateRole" parameterType="org.dongtian.sys.entity.Role">
+	
+	UPDATE s_role 
+	SET 
+	role_name=#{roleName},
+	state=#{state},
+	update_time=now(),
+	description=#{description}
+	 WHERE 
+	 role_id=#{roleId}
+</update>
+
+<delete id="deleteRoleByRoleId">
+	DELETE FROM S_ROLE WHERE role_id = #{roleId}
+</delete>
+
+<delete id="deleteUserRoleByUserId">
+	DELETE FROM S_USER_ROLE where user_id = #{userId}
+</delete>
+
+<insert id="addUserRoles">
+	INSERT INTO
+	S_USER_ROLE
+	(user_id,role_id)
+	
+	VALUES
+	<foreach collection="roleIds" item="roleId"  separator=",">
+		(#{userId},#{roleId})
+	</foreach>
+</insert>
+</mapper>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.dongtian.sys.mapper.ResourceMapper" >
+
+<resultMap type="org.dongtian.sys.entity.Resource" id="resourceMap">
+	
+	<id property="resourceId" column="resource_id"/>
+	<result property="resourceName" column="resource_name"/>
+	<result property="description" column="description"/>
+	<result property="resourceUrl" column="resource_url"/>
+	<result property="parentId" column="parent_id"/>
+	<result property="icon" column="icon"/>
+	<result property="permission" column="permission"/>
+	<result property="createTime" column="create_time"/>
+	<result property="updateTime" column="update_time"/>
+	<result property="state" column="state"/>
+	<result property="type" column="type"/>
+	<result property="sysType" column="sys_type"/>
+	
+</resultMap>
+<resultMap type="org.dongtian.sys.entity.Menu" id="menuMap">
+	
+	<id property="menuId" column="resource_id"/>
+	<result property="menuName" column="resource_name"/>
+	<result property="description" column="description"/>
+	<result property="menuUrl" column="resource_url"/>
+	<result property="parentId" column="parent_id"/>
+	<result property="icon" column="icon"/>
+	<result property="permission" column="permission"/>
+	<result property="createTime" column="create_time"/>
+	<result property="updateTime" column="update_time"/>
+	<result property="state" column="state"/>
+	<result property="type" column="type"/>
+	<result property="sysType" column="sys_type"/>
+	
+</resultMap>
+
+
+<select id="findResourceListByRoleId" resultMap="resourceMap">
+
+	SELECT *
+	FROM s_resource r
+	  INNER JOIN s_role_resource rr
+	    ON r.resource_id = rr.resource_id
+	WHERE rr.role_id = #{roleId}
+	<if test="resourceState != null">
+	    AND r.state = #{resourceState}
+	</if>
+	<if test="systemType != null and systemType !=''">
+	    AND r.sys_type = #{systemType}
+	</if>
+</select>
+<select id="findResourceList" resultMap="resourceMap">
+
+	SELECT *
+	FROM s_resource r
+	 <where>
+	 <if test="state != null">
+	    AND r.state = #{state}
+	</if>
+	 </where>
+	order by create_time asc
+</select>
+
+<insert id="addResource" parameterType="org.dongtian.sys.entity.Resource">
+	
+	
+INSERT  INTO 
+	s_resource
+(
+resource_name,
+description,
+resource_url,
+parent_id,
+icon,
+permission,
+create_time,
+update_time,
+state,
+TYPE,
+sys_type
+)
+VALUES(
+  #{resourceName},
+  #{description},
+  #{resourceUrl},
+  #{parentId},
+  #{icon},
+  #{permission},
+  now(),
+  now(),
+  #{state},
+  #{type},
+  #{sysType}
+)
+</insert>
+
+<select id="findResourceListById"  resultMap="resourceMap">
+  SELECT * from s_resource where resource_id = #{resourceId}
+</select>
+
+<update id="updateResource" parameterType="org.dongtian.sys.entity.Resource">
+	
+	UPDATE 
+	s_resource 
+SET 
+	resource_name=#{resourceName},
+	description=#{description},
+	resource_url=#{resourceUrl},
+	parent_id=#{parentId},
+	icon=#{icon},
+	permission=#{permission},
+	update_time=now(),
+	state=#{state},
+	TYPE=#{type},
+	sys_type=#{sysType}
+WHERE 
+ resource_id = #{resourceId}
+ 
+</update>
+<select id="findResourceListByParentId"  resultMap="resourceMap">
+  SELECT * from s_resource where parent_id = #{id}
+</select>
+<select id="findMenuListByParentId"  resultMap="menuMap">
+  SELECT * from s_resource where parent_id = #{id} and state =0
+</select>
+<delete id="deleteResourceById">
+    DELETE FROM S_RESOURCE WHERE resource_id = #{id}
+</delete>
+
+<delete id="deleteRoleResourceByRoleId">
+ DELETE FROM S_ROLE_RESOURCE WHERE role_id = #{roleId}
+</delete>
+
+<insert id="addRoleResource">
+INSERT INTO 
+S_ROLE_RESOURCE
+(
+ role_id,
+ resource_id
+) VALUES
+
+<foreach collection="resourceIdList" item="resourceId" separator=",">
+  (#{roleId},#{resourceId})
+</foreach>
+
+</insert>
+
+<select id="findTopMenuListByUserId" resultMap="menuMap">
+
+	SELECT DISTINCT  rs.* FROM s_resource rs INNER  JOIN  s_role_resource rr ON rs.resource_id = rr.resource_id INNER  JOIN  s_role r ON rr.role_id = r.role_id 
+INNER  JOIN  s_user_role ur ON r.role_id = ur.role_id 
+WHERE ur.user_id = #{userId} AND rs.parent_id IS NULL  AND r.state =0 
+<if test="code !=null">
+AND sys_type= #{code}
+</if>
+
+</select>
+
+</mapper>
